@@ -7,3 +7,8 @@ export class CreateUserDto {
   readonly phone: string;
   readonly id: string;
 }
+
+export class CreateAuthUserDto {
+  readonly email: string;
+  readonly password: string;
+}
