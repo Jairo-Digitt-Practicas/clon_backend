@@ -1,10 +1,13 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { supabase } from './supabaseClient';
 import { CreateAuthUserDto, CreateUserDto } from './create-user-dto';
 import { UpdateUserDTO, UpdateUserByEmail } from './update-user-dto';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
+  constructor(private readonly jwtService: JwtService) {}
+
   async createUser(createUserDto: CreateUserDto): Promise<any> {
     const { data, error } = await supabase
       .from('users')
@@ -74,6 +77,31 @@ export class UserService {
     }
     console.log(data);
   }
+  //crear sign in exitoso
+  async signIn(
+    email: string,
+    pass: string,
+  ): Promise<{ access_token: string; session: any }> {
+    console.log('Attempting login for:', email);
 
-  //crear sign in
+    const { data: authData, error } = await supabase.auth.signInWithPassword({
+      email: email,
+      password: pass,
+    });
+    console.log('Auth response:', authData, error);
+
+    if (error) {
+      throw new UnauthorizedException('Credenciales inválidas');
+    }
+
+    const payload = {
+      sub: authData.user.id,
+      email: authData.user.email,
+    };
+
+    return {
+      access_token: await this.jwtService.signAsync(payload),
+      session: authData.session,
+    };
+  }
 }

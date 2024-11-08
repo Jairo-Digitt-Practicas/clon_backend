@@ -16,11 +16,15 @@ export class UserController {
     @Body() updateUserDTO: UpdateUserDTO,
     @Param('id') id,
   ): Promise<any> {
-    console.log('soy el endpoint');
     return this.userService.updateUser(updateUserDTO, id);
   }
   @Post('/auth')
   async authUser(@Body() createAuthUserDto: CreateAuthUserDto): Promise<any> {
     return this.userService.createAuthUser(createAuthUserDto);
+  }
+
+  @Post('signin')
+  signIn(@Body() signInDto: Record<string, any>) {
+    return this.userService.signIn(signInDto.email, signInDto.password);
   }
 }
